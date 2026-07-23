@@ -32,3 +32,21 @@ export const register = (req, res) => {
         msg: 'Usuario registrado correctamente'
     })
 }
+
+export const register = (req, res) => {
+    
+    const { email, password, firstName, lastName } = req.body;
+    //validar que el email no exista en la base de datos
+    const validateEmail = Account.findOne({ where: { email: email } });
+    if (validateEmail) {
+        return res.json({
+            result: false,
+            msg: 'El email ya existe'
+        });
+    }
+    // crear el usuario en la bse de datos
+    const result = Account.create(
+        {email: email, password: password, firstName: firstName, lastName: lastName}
+
+    );
+}
