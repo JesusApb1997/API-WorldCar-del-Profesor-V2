@@ -1,6 +1,9 @@
 import { Sequelize } from 'sequelize';
 import dotenv from 'dotenv';
 import AccountModel from './accounts.model.js';
+import ProductModel from './product.model.js';
+import ProductTypeModel from './producType.model.js';
+import BrandModel from './brand.model.js';
 
 
 dotenv.config();
@@ -16,6 +19,9 @@ const sequelize = new Sequelize(
   }
 );
 const Account = AccountModel(sequelize, Sequelize);
+const Product = ProductModel(sequelize, Sequelize);
+const ProductType = ProductTypeModel(sequelize, Sequelize);
+const Brand = BrandModel(sequelize, Sequelize);
 // Define associations
 
 // Account.belongsTo(Role, { foreignKey: 'roleId' });
@@ -26,4 +32,4 @@ const Account = AccountModel(sequelize, Sequelize);
   });
 
  */
-export { Account, sequelize};
+export { Account, sequelize, Product, ProductType, Brand };

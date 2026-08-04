@@ -1,9 +1,10 @@
 //aqui tenemos las formulas del modelo de datos de la tabla accounts
 //asi se llama el archivo accounts.model.js para que sequelize lo encuentre y sepa que debe crear una tabla con ese nombre en la base de datos
 import { DataTypes } from 'sequelize';
-import bcrypt from 'bcrypt'; // Import bcrypt for password hashing
+import bcrypt from 'bcrypt';
+
 export default (sequelize) => {
-  const Account = sequelize.define('Account', { //Definir el modelo de la tabla accounts
+  const Account = sequelize.define('Account', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -11,23 +12,23 @@ export default (sequelize) => {
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false, // Validar que el email no sea nulo
-      unique: true, // Validar que el email sea único
+      allowNull: false,
+      unique: true,
       validate: {
-        isEmail: true, // Validar que el email sea válido
+        isEmail: true,
       },
     },
     password: {
       type: DataTypes.STRING,
-      allowNull: false, // Validar que la contraseña no sea nula
+      allowNull: false,
     },
     firstName: {
       type: DataTypes.STRING,
-      allowNull: false, //validar que el nombre no sea nulo
+      allowNull: false,
     },
     lastName: {
       type: DataTypes.STRING,
-      allowNull: false, //
+      allowNull: false,
     },
     isActived: {
       type: DataTypes.BOOLEAN,
@@ -36,8 +37,8 @@ export default (sequelize) => {
   }, {
     tableName: 'accounts',
     timestamps: false,
-    /* hooks: {
-      async beforeCreate(account) { // hook para encriptar la contraseña antes de guardar el usuario
+    hooks: {
+      async beforeCreate(account) {
         if (account.password) {
           account.password = await bcrypt.hash(account.password, 10);
         }
@@ -47,11 +48,23 @@ export default (sequelize) => {
           account.password = await bcrypt.hash(account.password, 10);
         }
       },
-    }, */
-
+    },
   });
-  /*  Account.prototype.validatePassword = async function (password) {
-     return await bcrypt.compare(password, this.pass);
-   } */
+
+  Account.prototype.validatePassword = async function (password) {
+    if (!password || !this.password) {
+      return false;
+    }
+
+    const storedPassword = this.password;
+    const isBcryptHash = storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2y$');
+
+    if (isBcryptHash) {
+      return await bcrypt.compare(password, storedPassword);
+    }
+
+    return storedPassword === password;
+  };
+
   return Account;
 };

@@ -1,52 +1,124 @@
 import { Account } from '../models/index.js';
-export const login = async (req, res) => {
-    // recibir los datos del body de la petición
-    const { email, password } = req.body;
 
-    // buscar el usuario en la base de datos
-    const result = await Account.findOne({ where: { email: email, password: password } });
-    if (!result) {
+export const login = async (req, res) => {
+    const { email, password } = req.body || {};
+
+    if (!email || !password) {
+        return res.status(400).json({
+            result: false,
+            msg: 'Email y contraseña son obligatorios'
+        });
+    }
+
+    const user = await Account.findOne({
+        attributes: ['id', 'email', 'password', 'firstName', 'lastName', 'isActived'],
+        where: { email }
+    });
+
+    if (!user) {
         return res.status(404).json({
             result: false,
             msg: 'Usuario no encontrado'
         });
     }
-    if (!result.isActived) {
-        return res.json({
+
+    if (!user.isActived) {
+        return res.status(401).json({
             result: false,
             msg: 'Usuario inactivo'
         });
     }
-    res.status(200).json({
+
+    const isValidPassword = await user.validatePassword(password);
+    if (!isValidPassword) {
+        return res.status(401).json({
+            result: false,
+            msg: 'Contraseña incorrecta'
+        });
+    }
+
+    const userWithoutPassword = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isActived: user.isActived
+    };
+
+    return res.status(200).json({
         result: true,
         msg: 'Usuario autenticado correctamente',
-        data: result
+        data: userWithoutPassword
     });
+};
 
-}
+export const register = async (req, res) => {
+    const { email, password, firstName, lastName } = req.body || {};
 
-export const register = (req, res) => {
+    if (!email || !password || !firstName || !lastName) {
+        return res.status(400).json({
+            result: false,
+            msg: 'Todos los campos son obligatorios'
+        });
+    }
 
-    res.status(200).json({
-        result: true,
-        msg: 'Usuario registrado correctamente'
-    })
-}
-
-export const register = (req, res) => {
-    
-    const { email, password, firstName, lastName } = req.body;
-    //validar que el email no exista en la base de datos
-    const validateEmail = Account.findOne({ where: { email: email } });
+    const validateEmail = await Account.findOne({ where: { email } });
     if (validateEmail) {
-        return res.json({
+        return res.status(409).json({
             result: false,
             msg: 'El email ya existe'
         });
     }
-    // crear el usuario en la bse de datos
-    const result = Account.create(
-        {email: email, password: password, firstName: firstName, lastName: lastName}
 
-    );
-}
+    const t = await Account.sequelize.transaction();
+
+    try {
+        const result = await Account.create({
+            email,
+            password,
+            firstName,
+            lastName
+        }, { transaction: t });
+
+        await t.commit();
+
+        return res.status(201).json({
+            result: true,
+            msg: 'Usuario registrado correctamente',
+            data: result
+        });
+    } catch (error) {
+        await t.rollback();
+        return res.status(500).json({
+            result: false,
+            msg: 'Error al crear el usuario',
+            error: error.message
+        });
+    }
+};
+
+export const getAllUsers = async (req, res) => {
+    const { id, isActived } = req.query;
+
+    try {
+        const users = await Account.findAll({
+            attributes: ['id', 'email', 'firstName', 'lastName', 'isActived'],
+            where: {
+                ...(id && { id }),
+                ...(isActived !== undefined && { isActived: isActived === 'true' || isActived === true })
+            }
+        });
+
+        return res.status(200).json({
+            result: true,
+            msg: 'Usuarios obtenidos correctamente',
+            data: users
+        });
+    } catch (error) {
+        return res.status(500).json({
+            result: false,
+            msg: 'Error al obtener los usuarios',
+            error: error.message
+        });
+    }
+};
