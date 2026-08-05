@@ -5,12 +5,12 @@ export const getAllBrand = async (req, res) => {
 
     try {
         const brands = await Brand.findAll({
-            attributes: ['id', 'name'],
-            where: id ? { id } : undefined
+            attributes: ['id', 'name'], //solo trae el id y el nombre
+            where: id ? { id } : undefined //si se pasa un id, trae solo esa marca, si no, trae todas
         });
 
         return res.status(200).json({
-            result: 'success',
+            result: true,
             msg: 'Marcas obtenidas correctamente',
             data: brands
         });
@@ -52,7 +52,8 @@ export const createBrand = async (req, res) => {
 };
 
 export const updateBrand = async (req, res) => {
-    const { id, name } = req.body || {};
+    const id = req.params.id || req.body?.id;
+    const name = req.body?.name || req.body?.nameBrand;
 
     if (!id || !name) {
         return res.status(400).json({
@@ -115,4 +116,35 @@ export const deleteBrand = async (req, res) => {
             error: error.message
         });
     }
-};
+}
+
+export const updateBrandName = async (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    try {
+        //validar si la marca existe
+        const brand = await Brand.findByPk(id);
+        if (!brand) {
+            return res.status(404).json({
+                result: 'error',
+                msg: 'Marca no encontrada'
+            });
+        }
+        //actualizar la marca
+        brand.name = name;
+        await brand.save();
+        return res.status(200).json({
+            result: 'success',
+            msg: 'Marca actualizada correctamente'
+        });
+    } catch (error) {
+        return res.status(500).json({
+            result: 'error',
+            msg: 'Error al actualizar la marca',
+            error: error.message
+        });
+    }
+
+}
+

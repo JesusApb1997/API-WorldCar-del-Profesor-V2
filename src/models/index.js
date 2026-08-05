@@ -26,10 +26,9 @@ const Brand = BrandModel(sequelize, Sequelize);
 
 // Account.belongsTo(Role, { foreignKey: 'roleId' });
 
-/* sequelize.sync()
+/* sequelize.sync({ alter: true })
   .then(() => {
-    console.log('Database & tables created!');
-  });
+    console.log('Database & tables updated/synced!');
+  }); */
 
- */
 export { Account, sequelize, Product, ProductType, Brand };

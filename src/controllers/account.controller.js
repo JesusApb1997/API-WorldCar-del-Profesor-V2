@@ -1,5 +1,6 @@
 import { Account } from '../models/index.js';
 
+// Autenticación de usuarios (Login)
 export const login = async (req, res) => {
     const { email, password } = req.body || {};
 
@@ -10,6 +11,7 @@ export const login = async (req, res) => {
         });
     }
 
+    // Buscar usuario por email y validar si existe y está activo
     const user = await Account.findOne({
         attributes: ['id', 'email', 'password', 'firstName', 'lastName', 'isActived'],
         where: { email }
@@ -29,6 +31,7 @@ export const login = async (req, res) => {
         });
     }
 
+    // Validar contraseña encriptada
     const isValidPassword = await user.validatePassword(password);
     if (!isValidPassword) {
         return res.status(401).json({
@@ -37,6 +40,7 @@ export const login = async (req, res) => {
         });
     }
 
+    // Responder omitiendo la contraseña
     const userWithoutPassword = {
         id: user.id,
         email: user.email,
@@ -52,6 +56,7 @@ export const login = async (req, res) => {
     });
 };
 
+// Registro de nuevos usuarios
 export const register = async (req, res) => {
     const { email, password, firstName, lastName } = req.body || {};
 
@@ -62,14 +67,22 @@ export const register = async (req, res) => {
         });
     }
 
+    // Verificar si el email ya se encuentra registrado
     const validateEmail = await Account.findOne({ where: { email } });
-    if (validateEmail) {
+    if (validateEmail && validateEmail.isActived) {
         return res.status(409).json({
             result: false,
             msg: 'El email ya existe'
         });
     }
+    if (validateEmail && !validateEmail.isActived) {
+        return res.status(409).json({
+            result: false,
+            msg: 'El email ya existe y esta inactivo'
+        });
+    }
 
+    // Transacción para asegurar la creación del usuario o revertir si hay un error
     const t = await Account.sequelize.transaction();
 
     try {
@@ -88,15 +101,17 @@ export const register = async (req, res) => {
             data: result
         });
     } catch (error) {
+        console.error(error);
         await t.rollback();
         return res.status(500).json({
             result: false,
-            msg: 'Error al crear el usuario',
+            msg: 'Error al registrar el usuario',
             error: error.message
         });
     }
 };
 
+// Obtener lista de usuarios (filtrado opcional por id o estado activo)
 export const getAllUsers = async (req, res) => {
     const { id, isActived } = req.query;
 
@@ -121,4 +136,7 @@ export const getAllUsers = async (req, res) => {
             error: error.message
         });
     }
-};
+}; //aqui termina el controlador de cuentas
+
+
+

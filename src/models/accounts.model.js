@@ -13,9 +13,9 @@ export default (sequelize) => {
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
+      unique: true, //no puede haber dos correos iguales
       validate: {
-        isEmail: true,
+        isEmail: true, //debe ser un correo electronico
       },
     },
     password: {
@@ -38,14 +38,14 @@ export default (sequelize) => {
     tableName: 'accounts',
     timestamps: false,
     hooks: {
-      async beforeCreate(account) {
+      async beforeCreate(account) { //antes de crear un usuario
         if (account.password) {
           account.password = await bcrypt.hash(account.password, 10);
         }
       },
       async beforeUpdate(account) {
         if (account.changed('password')) {
-          account.password = await bcrypt.hash(account.password, 10);
+          account.password = await bcrypt.hash(account.password, 10); //encriptar la contraseña
         }
       },
     },
@@ -53,17 +53,17 @@ export default (sequelize) => {
 
   Account.prototype.validatePassword = async function (password) {
     if (!password || !this.password) {
-      return false;
+      return false; //si no hay contraseña, no se puede validar
     }
 
     const storedPassword = this.password;
     const isBcryptHash = storedPassword.startsWith('$2a$') || storedPassword.startsWith('$2b$') || storedPassword.startsWith('$2y$');
 
     if (isBcryptHash) {
-      return await bcrypt.compare(password, storedPassword);
+      return await bcrypt.compare(password, storedPassword); //comparar la contraseña encriptada
     }
 
-    return storedPassword === password;
+    return storedPassword === password; //esto es para comparar la contraseña en texto plano
   };
 
   return Account;
