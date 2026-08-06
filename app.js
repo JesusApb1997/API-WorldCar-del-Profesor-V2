@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import brandRoutes from './src/routes/brand.route.js';
 import productRoutes from './src/routes/product.route.js';
 import productTypeRoutes from './src/routes/productType.route.js';
+import clientsRoutes from './src/routes/clients.route.js';
 dotenv.config();
 
 // importar routes
@@ -17,6 +18,7 @@ app.use('/api/accounts', accountRoutes); // implementar las rutas de accounts.ro
 app.use('/api/brands', brandRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/productTypes', productTypeRoutes);
+app.use('/api/clients', clientsRoutes);
 
 // api/accounts/register
 // api/accounts/login
@@ -29,6 +31,7 @@ app.use('/api/productTypes', productTypeRoutes);
 // api/brands/createBrand
 // api/brands/updateBrand
 // api/brands/deleteBrand
+// api/clients/getAllClients
 
 const PORT = process.env.PORT || 3000;
 //iniciar el servidor

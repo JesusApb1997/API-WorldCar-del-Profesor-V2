@@ -4,6 +4,7 @@ import AccountModel from './accounts.model.js';
 import ProductModel from './product.model.js';
 import ProductTypeModel from './producType.model.js';
 import BrandModel from './brand.model.js';
+import ClientsModel from './clients.model.js';
 
 
 dotenv.config();
@@ -22,6 +23,7 @@ const Account = AccountModel(sequelize, Sequelize);
 const Product = ProductModel(sequelize, Sequelize);
 const ProductType = ProductTypeModel(sequelize, Sequelize);
 const Brand = BrandModel(sequelize, Sequelize);
+const Clients = ClientsModel(sequelize, Sequelize);
 // Define associations
 
 // Account.belongsTo(Role, { foreignKey: 'roleId' });
@@ -31,4 +33,4 @@ const Brand = BrandModel(sequelize, Sequelize);
     console.log('Database & tables updated/synced!');
   }); */
 
-export { Account, sequelize, Product, ProductType, Brand };
+export { Account, sequelize, Product, ProductType, Brand, Clients };
