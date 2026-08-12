@@ -20,18 +20,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/productTypes', productTypeRoutes);
 app.use('/api/clients', clientsRoutes);
 
-// api/accounts/register
-// api/accounts/login
-// api/accounts/logout
-// api/accounts/profile
-// api/accounts/update
-// api/accounts/delete
-// api/accounts/get
-// api/brands/getAllBrand
-// api/brands/createBrand
-// api/brands/updateBrand
-// api/brands/deleteBrand
-// api/clients/getAllClients
+
 
 const PORT = process.env.PORT || 3000;
 //iniciar el servidor

@@ -100,7 +100,7 @@ export const createBrand = async (req, res) => {
             msg: 'El nombre de la marca es obligatorio'
         });
     }
-    // aqui confirma s i ya existe
+    // aqui confirma si ya existe
     try {
 
         const existingBrand = await Brand.findOne({

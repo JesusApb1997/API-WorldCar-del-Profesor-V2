@@ -7,12 +7,12 @@ export default (sequelize) => {
             autoIncrement: true,
             primaryKey: true,
         },
-        firstname: {
+        firstName: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: false,
         },
-        lastname: {
+        lastName: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: false,

@@ -24,6 +24,7 @@ const Product = ProductModel(sequelize, Sequelize);
 const ProductType = ProductTypeModel(sequelize, Sequelize);
 const Brand = BrandModel(sequelize, Sequelize);
 const Clients = ClientsModel(sequelize, Sequelize);
+
 // Define associations
 
 // Account.belongsTo(Role, { foreignKey: 'roleId' });
